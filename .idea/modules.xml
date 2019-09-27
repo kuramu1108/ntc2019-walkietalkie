@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Android-Walkie-Talkie-master.iml" filepath="$PROJECT_DIR$/Android-Walkie-Talkie-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ntc2019-walkietalkie.iml" filepath="$PROJECT_DIR$/ntc2019-walkietalkie.iml" />
     </modules>
   </component>
 </project>
