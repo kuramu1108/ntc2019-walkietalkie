@@ -59,7 +59,7 @@ public final class WebSocketClient extends WebSocketListener {
 
     public void run() {
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(40, TimeUnit.MILLISECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
                 .build();
 
         Request request = new Request.Builder()
