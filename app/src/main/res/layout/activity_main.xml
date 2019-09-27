@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <android.support.design.widget.CoordinatorLayout
@@ -8,14 +9,27 @@
         android:fitsSystemWindows="true"
         tools:context="com.myhexaville.walkie_talkie.MainActivity">
 
-        <Button
-            android:id="@+id/record_btn"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center|bottom"
-            android:layout_marginBottom="50dp"
-            android:elevation="4dp"/>
-<!--            android:background="@drawable/standby" -->
+<!--        <ImageButton-->
+<!--            android:id="@+id/record_btn"-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="150dp"-->
+<!--            android:layout_gravity="center|bottom"-->
+<!--            android:layout_marginBottom="50dp"-->
+<!--            android:scaleType="fitCenter"-->
+<!--            app:srcCompat="@drawable/ic_speaker_phone_black_24dp"-->
+<!--            android:background="@color/colorAccent"-->
+<!--            android:elevation="4dp" />-->
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="128dp"
+            app:srcCompat="@drawable/ic_speaker_phone_black_24dp"
+            />
+
+        <!--            android:background="@drawable/standby" -->
 
     </android.support.design.widget.CoordinatorLayout>
 </layout>

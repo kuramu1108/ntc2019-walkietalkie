@@ -4,12 +4,14 @@ import android.Manifest;
 import android.databinding.DataBindingUtil;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.myhexaville.walkie_talkie.databinding.ActivityMainBinding;
 
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaRecorder mRecorder;
     private ActivityMainBinding mBinding;
     private WebSocketClient client;
-    private Button recordBtn;
+    private ImageButton recordBtn;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
 
-        recordBtn = findViewById(R.id.record_btn);
+        recordBtn = findViewById(R.id.imageButton);
 
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopRecording() {
         mRecorder.stop();
+        mRecorder.reset();
         mRecorder.release();
         mRecorder = null;
     }
