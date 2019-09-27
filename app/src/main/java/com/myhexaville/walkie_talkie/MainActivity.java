@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopRecording() {
         mRecorder.stop();
+        mRecorder.reset();
         mRecorder.release();
         mRecorder = null;
     }
