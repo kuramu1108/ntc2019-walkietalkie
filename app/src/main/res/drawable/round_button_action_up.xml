@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--此XML檔用於改變按鈕顏色(當按鈕放開時)-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape = "oval">
+            <solid android:color = "#F00B1E"/>
+        </shape>
+    </item>
+</selector>
