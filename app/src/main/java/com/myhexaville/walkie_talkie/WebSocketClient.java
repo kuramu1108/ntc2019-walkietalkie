@@ -59,8 +59,10 @@ public final class WebSocketClient extends WebSocketListener {
     }
 
     public void run() {
+        vm.clientRunning = true;
         OkHttpClient client = new OkHttpClient.Builder()
                 .readTimeout(60, TimeUnit.SECONDS)
+                .pingInterval(30, TimeUnit.SECONDS)
                 .build();
 
         Request request = new Request.Builder()
@@ -72,10 +74,21 @@ public final class WebSocketClient extends WebSocketListener {
         client.dispatcher().executorService().shutdown();
     }
 
+    public void close() {
+        mSocket.close(1000, null);
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }
+        vm.clientRunning = false;
+    }
+
     @Override
     public void onOpen(final WebSocket webSocket, Response response) {
         Log.d(LOG_TAG, "onOpen: ");
         mSocket = webSocket;
+        vm.serverConnection.postValue(true);
     }
 
     public void sendAudio() {
@@ -146,12 +159,14 @@ public final class WebSocketClient extends WebSocketListener {
     @Override
     public void onClosing(WebSocket webSocket, int code, String reason) {
         Log.d(LOG_TAG, "onClosing: " + reason);
-        webSocket.close(1000, null);
+//        webSocket.close(1000, null);
+        vm.serverConnection.postValue(false);
     }
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(LOG_TAG, "onFailure: ", t);
+        vm.serverConnection.postValue(false);
         t.printStackTrace();
     }
 
@@ -195,7 +210,7 @@ public final class WebSocketClient extends WebSocketListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d(LOG_TAG, "onClosing: dudation in millis: " + mPlayer.getDuration());
+        Log.d(LOG_TAG, "onClosing: duration in millis: " + mPlayer.getDuration());
 
         mPlayer.start();
     }

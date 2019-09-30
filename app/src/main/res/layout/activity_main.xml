@@ -9,16 +9,16 @@
         android:fitsSystemWindows="true"
         tools:context="com.myhexaville.walkie_talkie.MainActivity">
 
-<!--        <ImageButton-->
-<!--            android:id="@+id/record_btn"-->
-<!--            android:layout_width="150dp"-->
-<!--            android:layout_height="150dp"-->
-<!--            android:layout_gravity="center|bottom"-->
-<!--            android:layout_marginBottom="50dp"-->
-<!--            android:scaleType="fitCenter"-->
-<!--            app:srcCompat="@drawable/ic_speaker_phone_black_24dp"-->
-<!--            android:background="@color/colorAccent"-->
-<!--            android:elevation="4dp" />-->
+        <!--        <ImageButton-->
+        <!--            android:id="@+id/record_btn"-->
+        <!--            android:layout_width="150dp"-->
+        <!--            android:layout_height="150dp"-->
+        <!--            android:layout_gravity="center|bottom"-->
+        <!--            android:layout_marginBottom="50dp"-->
+        <!--            android:scaleType="fitCenter"-->
+        <!--            app:srcCompat="@drawable/ic_speaker_phone_black_24dp"-->
+        <!--            android:background="@color/colorAccent"-->
+        <!--            android:elevation="4dp" />-->
 
         <ImageButton
             android:id="@+id/imageButton"
@@ -26,8 +26,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:layout_marginBottom="128dp"
-            app:srcCompat="@drawable/ic_speaker_phone_black_24dp"
-            />
+            app:srcCompat="@drawable/ic_speaker_phone_black_24dp" />
+
+        <Switch
+            android:id="@+id/switch_server_connection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Server Connection" />
 
         <!--            android:background="@drawable/standby" -->
 

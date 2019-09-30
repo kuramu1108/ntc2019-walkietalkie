@@ -1,14 +1,19 @@
 package com.myhexaville.walkie_talkie;
 
 import android.Manifest;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
 
 import com.myhexaville.walkie_talkie.databinding.ActivityMainBinding;
 
@@ -28,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding mBinding;
     private WebSocketClient client;
     private ImageButton recordBtn;
+    private Switch serverConnectionSwitch;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         vm.sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
 
+        serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
 
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
@@ -56,8 +63,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        vm.serverConnection.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                serverConnectionSwitch.setChecked(aBoolean);
+            }
+        });
+
+        serverConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked && !vm.clientRunning) client.run();
+                else if (!isChecked && vm.clientRunning) client.close();
+            }
+        });
+
         client = new WebSocketClient(this, vm);
         client.run();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     @Override
