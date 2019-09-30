@@ -40,21 +40,22 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-import static com.myhexaville.walkie_talkie.MainActivity.sRecordedFileName;
-
 public final class WebSocketClient extends WebSocketListener {
     private static final String LOG_TAG = "WebSocketClient";
     public static final String START = "start";
     public static final String END = "end";
+    public static final String TALKER_PREFIX = "talking:";
 
     private final Context mContext;
+    private final MyViewModel vm;
     static List<byte[]> sList = new ArrayList<>();
     WebSocket mSocket;
     private MediaPlayer mPlayer;
 
 
-    public WebSocketClient(Context c) {
+    public WebSocketClient(Context c, MyViewModel viewModel) {
         mContext = c;
+        vm = viewModel;
     }
 
     public void run() {
@@ -81,10 +82,11 @@ public final class WebSocketClient extends WebSocketListener {
         FileChannel in = null;
 
         try {
-            File f = new File(sRecordedFileName);
+            File f = new File(vm.sRecordedFileName);
             in = new FileInputStream(f).getChannel();
 
             mSocket.send(START);
+            mSocket.send(TALKER_PREFIX + vm.talkerName);
 
             sendAudioBytes(in);
 
@@ -118,6 +120,8 @@ public final class WebSocketClient extends WebSocketListener {
     public void onMessage(WebSocket webSocket, String text) {
         if (text.equals(START)) {
             sList.clear();
+        } else if (text.startsWith(TALKER_PREFIX)) {
+            vm.senderName = text.substring(7);
         } else if (text.equals(END)) {
             playReceivedFile();
         } else {
@@ -195,5 +199,4 @@ public final class WebSocketClient extends WebSocketListener {
 
         mPlayer.start();
     }
-
 }

@@ -1,16 +1,13 @@
 package com.myhexaville.walkie_talkie;
 
 import android.Manifest;
-import android.databinding.DataBindingUtil;
+import android.arch.lifecycle.ViewModelProviders;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.myhexaville.walkie_talkie.databinding.ActivityMainBinding;
@@ -22,10 +19,10 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 
 public class MainActivity extends AppCompatActivity {
+    private MyViewModel vm;
 
     private static final String LOG_TAG = "AudioRecordTest";
     public static final int RC_RECORD_AUDIO = 1000;
-    public static String sRecordedFileName;
 
     private MediaRecorder mRecorder;
     private ActivityMainBinding mBinding;
@@ -37,7 +34,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(icicle);
         setContentView(R.layout.activity_main);
 
-        sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
+        vm = ViewModelProviders.of(this).get(MyViewModel.class);
+
+        vm.sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
 
         recordBtn = findViewById(R.id.imageButton);
 
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        client = new WebSocketClient(this);
+        client = new WebSocketClient(this, vm);
         client.run();
     }
 
@@ -86,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             mRecorder = new MediaRecorder();
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mRecorder.setOutputFile(sRecordedFileName);
+            mRecorder.setOutputFile(vm.sRecordedFileName);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
             try {
