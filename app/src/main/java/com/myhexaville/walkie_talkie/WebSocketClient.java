@@ -40,26 +40,29 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-import static com.myhexaville.walkie_talkie.MainActivity.sRecordedFileName;
-
 public final class WebSocketClient extends WebSocketListener {
     private static final String LOG_TAG = "WebSocketClient";
     public static final String START = "start";
     public static final String END = "end";
+    public static final String TALKER_PREFIX = "talking:";
 
     private final Context mContext;
+    private final MyViewModel vm;
     static List<byte[]> sList = new ArrayList<>();
     WebSocket mSocket;
     private MediaPlayer mPlayer;
 
 
-    public WebSocketClient(Context c) {
+    public WebSocketClient(Context c, MyViewModel viewModel) {
         mContext = c;
+        vm = viewModel;
     }
 
     public void run() {
+        vm.clientRunning = true;
         OkHttpClient client = new OkHttpClient.Builder()
                 .readTimeout(60, TimeUnit.SECONDS)
+                .pingInterval(30, TimeUnit.SECONDS)
                 .build();
 
         Request request = new Request.Builder()
@@ -71,20 +74,32 @@ public final class WebSocketClient extends WebSocketListener {
         client.dispatcher().executorService().shutdown();
     }
 
+    public void close() {
+        mSocket.close(1000, null);
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }
+        vm.clientRunning = false;
+    }
+
     @Override
     public void onOpen(final WebSocket webSocket, Response response) {
         Log.d(LOG_TAG, "onOpen: ");
         mSocket = webSocket;
+        vm.serverConnection.postValue(true);
     }
 
     public void sendAudio() {
         FileChannel in = null;
 
         try {
-            File f = new File(sRecordedFileName);
+            File f = new File(vm.sRecordedFileName);
             in = new FileInputStream(f).getChannel();
 
             mSocket.send(START);
+            mSocket.send(TALKER_PREFIX + vm.yourName);
 
             sendAudioBytes(in);
 
@@ -118,7 +133,15 @@ public final class WebSocketClient extends WebSocketListener {
     public void onMessage(WebSocket webSocket, String text) {
         if (text.equals(START)) {
             sList.clear();
+        } else if (text.startsWith(TALKER_PREFIX)) {
+            vm.talkerName = text.substring(8);
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk(vm.talkerName, true));
+            vm.talkHistory.postValue(temp);
         } else if (text.equals(END)) {
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk(vm.talkerName, false));
+            vm.talkHistory.postValue(temp);
             playReceivedFile();
         } else {
             try {
@@ -142,12 +165,14 @@ public final class WebSocketClient extends WebSocketListener {
     @Override
     public void onClosing(WebSocket webSocket, int code, String reason) {
         Log.d(LOG_TAG, "onClosing: " + reason);
-        webSocket.close(1000, null);
+//        webSocket.close(1000, null);
+        vm.serverConnection.postValue(false);
     }
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(LOG_TAG, "onFailure: ", t);
+        vm.serverConnection.postValue(false);
         t.printStackTrace();
     }
 
@@ -191,9 +216,8 @@ public final class WebSocketClient extends WebSocketListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d(LOG_TAG, "onClosing: dudation in millis: " + mPlayer.getDuration());
+        Log.d(LOG_TAG, "onClosing: duration in millis: " + mPlayer.getDuration());
 
         mPlayer.start();
     }
-
 }
