@@ -1,10 +1,9 @@
 package com.myhexaville.walkie_talkie;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.annotation.SuppressLint;
-import android.databinding.DataBindingUtil;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,16 +16,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.RadioGroup;
 import android.widget.Switch;
 
-import com.myhexaville.walkie_talkie.databinding.ActivityMainBinding;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -40,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
     private MediaRecorder mRecorder;
     private WebSocketClient client;
-    private Person person = new Person();
 
     private ImageButton recordBtn;
     private Switch serverConnectionSwitch;
@@ -56,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         vm = ViewModelProviders.of(this).get(MyViewModel.class);
 
         vm.sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
+        vm.talkHistory.setValue(new ArrayList<Talk>());
 
         serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
@@ -74,12 +71,12 @@ public class MainActivity extends AppCompatActivity {
                     // 給予觸覺回饋
                     v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                     // 設定說話者名稱以及其WIFI位址
-                    person.setName(et_name);
+                    vm.yourName = et_name.getText().toString();
                     // 取得說話者的名稱及WIFI位址
-                    String talker_name = person.getName();
                     // 畫面顯示誰正在說話
-                    String text = "<font color='blue'>" + talker_name + " is talking..." + "</font><br>";
-                    testview_whosecall.append(Html.fromHtml(text));
+                    List<Talk> temp = vm.talkHistory.getValue();
+                    temp.add(new Talk(vm.yourName, true));
+                    vm.talkHistory.setValue(temp);
 
                     // change button color
                     setRecordIcon(true);
@@ -89,11 +86,10 @@ public class MainActivity extends AppCompatActivity {
                 // 按鈕放開時
                 if (event.getAction() == MotionEvent.ACTION_UP)
                 {
-                    // 取得說話者的名稱及WIFI位址
-                    String talker_name = person.getName();
                     // 畫面顯示誰正在說話
-                    String text = "<font color='red'>" + talker_name + " stop talking..." + "</font><br>";
-                    testview_whosecall.append(Html.fromHtml(text));
+                    List<Talk> temp = vm.talkHistory.getValue();
+                    temp.add(new Talk(vm.yourName, false));
+                    vm.talkHistory.setValue(temp);
 
                     // change button color
                     setRecordIcon(false);
@@ -102,6 +98,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 return true;
+            }
+        });
+
+        vm.talkHistory.observe(this, new Observer<List<Talk>>() {
+            @Override
+            public void onChanged(@Nullable List<Talk> talks) {
+                testview_whosecall.append(Html.fromHtml(vm.getLastTalkString()));
             }
         });
 
@@ -171,17 +174,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopRecording() {
         mRecorder.stop();
-//        mRecorder.reset();
+        mRecorder.reset();
         mRecorder.release();
         mRecorder = null;
     }
 
     //設定按鈕顏色
     private void setRecordIcon(boolean record) {
-        if (record) {
-            recordBtn.setBackground(getResources().getDrawable(R.drawable.round_button_action_down));
+        if (!record) {
+            recordBtn.setBackground(getResources().getDrawable(R.drawable.round_button_action_record));
         } else {
-            recordBtn.setBackground(getResources().getDrawable(R.drawable.round_button_action_up));
+            recordBtn.setBackground(getResources().getDrawable(R.drawable.round_button_action_recording));
         }
     }
 

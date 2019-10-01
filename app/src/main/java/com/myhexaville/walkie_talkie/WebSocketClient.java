@@ -99,7 +99,7 @@ public final class WebSocketClient extends WebSocketListener {
             in = new FileInputStream(f).getChannel();
 
             mSocket.send(START);
-            mSocket.send(TALKER_PREFIX + vm.talkerName);
+            mSocket.send(TALKER_PREFIX + vm.yourName);
 
             sendAudioBytes(in);
 
@@ -134,8 +134,14 @@ public final class WebSocketClient extends WebSocketListener {
         if (text.equals(START)) {
             sList.clear();
         } else if (text.startsWith(TALKER_PREFIX)) {
-            vm.senderName = text.substring(7);
+            vm.talkerName = text.substring(8);
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk(vm.talkerName, true));
+            vm.talkHistory.postValue(temp);
         } else if (text.equals(END)) {
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk(vm.talkerName, false));
+            vm.talkHistory.postValue(temp);
             playReceivedFile();
         } else {
             try {
