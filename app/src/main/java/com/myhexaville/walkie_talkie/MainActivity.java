@@ -3,11 +3,16 @@ package com.myhexaville.walkie_talkie;
 import android.Manifest;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.annotation.SuppressLint;
+import android.databinding.DataBindingUtil;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -16,6 +21,10 @@ import android.widget.RadioGroup;
 import android.widget.Switch;
 
 import com.myhexaville.walkie_talkie.databinding.ActivityMainBinding;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -30,11 +39,15 @@ public class MainActivity extends AppCompatActivity {
     public static final int RC_RECORD_AUDIO = 1000;
 
     private MediaRecorder mRecorder;
-    private ActivityMainBinding mBinding;
     private WebSocketClient client;
+    private Person person = new Person();
+
     private ImageButton recordBtn;
     private Switch serverConnectionSwitch;
+    private EditText et_name;
+    private TextView testview_whosecall;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -46,19 +59,48 @@ public class MainActivity extends AppCompatActivity {
 
         serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
+        et_name = (EditText) findViewById(R.id.editText);
+        testview_whosecall = (TextView) findViewById(R.id.textView_whosecall);
+        testview_whosecall.setMovementMethod(new ScrollingMovementMethod());
 
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(LOG_TAG, "onTouch: " + event.getAction());
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+                // 按鈕按下時
+                if(event.getAction() == MotionEvent.ACTION_DOWN)
+                {
+                    // 給予觸覺回饋
+                    v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                    // 設定說話者名稱以及其WIFI位址
+                    person.setName(et_name);
+                    // 取得說話者的名稱及WIFI位址
+                    String talker_name = person.getName();
+                    // 畫面顯示誰正在說話
+                    String text = "<font color='blue'>" + talker_name + " is talking..." + "</font><br>";
+                    testview_whosecall.append(Html.fromHtml(text));
+
+                    // change button color
                     setRecordIcon(true);
                     startRecording();
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                }
+
+                // 按鈕放開時
+                if (event.getAction() == MotionEvent.ACTION_UP)
+                {
+                    // 取得說話者的名稱及WIFI位址
+                    String talker_name = person.getName();
+                    // 畫面顯示誰正在說話
+                    String text = "<font color='red'>" + talker_name + " stop talking..." + "</font><br>";
+                    testview_whosecall.append(Html.fromHtml(text));
+
+                    // change button color
                     setRecordIcon(false);
                     stopRecording();
                     send();
                 }
+
                 return true;
             }
         });
@@ -129,26 +171,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopRecording() {
         mRecorder.stop();
-        mRecorder.reset();
+//        mRecorder.reset();
         mRecorder.release();
         mRecorder = null;
     }
 
+    //設定按鈕顏色
     private void setRecordIcon(boolean record) {
-//        if (record) {
-//            recordBtn
-//                    .setBackground(
-//                            VectorDrawableCompat.create(getResources(), R.drawable.recording, getTheme()));
-//        } else {
-//            recordBtn
-//                    .setBackground(
-//                            VectorDrawableCompat.create(getResources(), R.drawable.standby, getTheme()));
-//        }
+        if (record) {
+            recordBtn.setBackground(getResources().getDrawable(R.drawable.round_button_action_down));
+        } else {
+            recordBtn.setBackground(getResources().getDrawable(R.drawable.round_button_action_up));
+        }
     }
 
+    //傳送音檔
     public void send() {
         client.sendAudio();
     }
+
 
 }
 
