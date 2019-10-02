@@ -1,4 +1,4 @@
-package com.myhexaville.walkie_talkie;
+package com.ntc2019.walkie_talkie;
 
 import org.junit.Test;
 

@@ -1,6 +1,5 @@
-package com.myhexaville.walkie_talkie;
+package com.ntc2019.walkie_talkie;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
