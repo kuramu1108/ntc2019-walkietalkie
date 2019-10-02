@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import android.widget.EditText;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private Switch serverConnectionSwitch;
     private EditText et_name;
     private TextView testview_whosecall;
+    private ProgressBar progressBar;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     // 給予觸覺回饋
                     v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                    progressBar.setVisibility(View.VISIBLE);
                     // 設定說話者名稱以及其WIFI位址
                     vm.yourName = et_name.getText().toString();
                     // 取得說話者的名稱及WIFI位址
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     setRecordIcon(false);
                     stopRecording();
                     send();
+                    progressBar.setVisibility(View.INVISIBLE);
                 }
 
                 else if (event.getAction() == MotionEvent.ACTION_DOWN && !vm.getServerConnection()) {
@@ -201,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         recordBtn = findViewById(R.id.imageButton);
         et_name = (EditText) findViewById(R.id.editText);
         testview_whosecall = (TextView) findViewById(R.id.textView_whosecall);
+        progressBar = findViewById(R.id.progressBar);
     }
 }
 
