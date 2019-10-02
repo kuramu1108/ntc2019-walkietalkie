@@ -1,4 +1,4 @@
-package com.myhexaville.walkie_talkie;
+package com.ntc2019.walkie_talkie;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -20,6 +20,7 @@ import android.widget.Switch;
 
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,19 +55,16 @@ public class MainActivity extends AppCompatActivity {
         vm.sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
         vm.talkHistory.setValue(new ArrayList<Talk>());
 
-        serverConnectionSwitch = findViewById(R.id.switch_server_connection);
-        recordBtn = findViewById(R.id.imageButton);
-        et_name = (EditText) findViewById(R.id.editText);
-        testview_whosecall = (TextView) findViewById(R.id.textView_whosecall);
-        testview_whosecall.setMovementMethod(new ScrollingMovementMethod());
+        viewBinding();
 
+        testview_whosecall.setMovementMethod(new ScrollingMovementMethod());
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(LOG_TAG, "onTouch: " + event.getAction());
 
                 // 按鈕按下時
-                if(event.getAction() == MotionEvent.ACTION_DOWN)
+                if(event.getAction() == MotionEvent.ACTION_DOWN && vm.getServerConnection())
                 {
                     // 給予觸覺回饋
                     v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -84,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // 按鈕放開時
-                if (event.getAction() == MotionEvent.ACTION_UP)
+                else if (event.getAction() == MotionEvent.ACTION_UP && vm.getServerConnection())
                 {
                     // 畫面顯示誰正在說話
                     List<Talk> temp = vm.talkHistory.getValue();
@@ -95,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
                     setRecordIcon(false);
                     stopRecording();
                     send();
+                }
+
+                else if (event.getAction() == MotionEvent.ACTION_DOWN && !vm.getServerConnection()) {
+                    v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                    Toast.makeText(getApplicationContext(), "伺服器未連接", Toast.LENGTH_SHORT).show();
                 }
 
                 return true;
@@ -193,6 +196,11 @@ public class MainActivity extends AppCompatActivity {
         client.sendAudio();
     }
 
-
+    public void viewBinding() {
+        serverConnectionSwitch = findViewById(R.id.switch_server_connection);
+        recordBtn = findViewById(R.id.imageButton);
+        et_name = (EditText) findViewById(R.id.editText);
+        testview_whosecall = (TextView) findViewById(R.id.textView_whosecall);
+    }
 }
 

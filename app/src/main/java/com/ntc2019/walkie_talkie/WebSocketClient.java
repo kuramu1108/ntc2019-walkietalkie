@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.myhexaville.walkie_talkie;
+package com.ntc2019.walkie_talkie;
 
 
 import android.content.Context;
