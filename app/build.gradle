@@ -7,7 +7,7 @@ android {
     }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
-        applicationId "com.myhexaville.walkie_talkie"
+        applicationId "com.ntc2019.walkie_talkie"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
