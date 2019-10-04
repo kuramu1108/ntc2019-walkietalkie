@@ -11,8 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -23,7 +21,6 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton recordBtn;
     private ImageButton deleteTalkBtn;
     private Switch serverConnectionSwitch;
-    private EditText et_name;
+    private EditText talkerNameTxt;
     private ProgressBar progressBar;
     private RecyclerView talkHistory;
 
@@ -84,9 +81,12 @@ public class MainActivity extends AppCompatActivity {
 
         vm.serverConnection.observe(this, new Observer<Boolean>() {
             @Override
-            public void onChanged(@Nullable Boolean aBoolean) {
-                serverConnectionSwitch.setChecked(aBoolean);
-                if (!aBoolean) Toast.makeText(getApplicationContext(), "伺服器無回應請檢察網路連接", Toast.LENGTH_LONG).show();
+            public void onChanged(@Nullable Boolean connected) {
+                serverConnectionSwitch.setChecked(connected);
+                serverConnectionSwitch.setClickable(!connected);
+                if (!connected) {
+                    Toast.makeText(getApplicationContext(), "伺服器無回應請檢察網路連接", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     public void viewBinding() {
         serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
-        et_name = (EditText) findViewById(R.id.editText);
+        talkerNameTxt = findViewById(R.id.txt_talker_name);
         progressBar = findViewById(R.id.progressBar);
         talkHistory = findViewById(R.id.talk_view);
         deleteTalkBtn = findViewById(R.id.imgBtn_delete);
@@ -194,13 +194,18 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "onTouch: " + event.getAction());
 
                 // 按鈕按下時
+                if (talkerNameTxt.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "請輸入發話者名字", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+
                 if(event.getAction() == MotionEvent.ACTION_DOWN && vm.getServerConnection())
                 {
                     // 給予觸覺回饋
                     v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                     progressBar.setVisibility(View.VISIBLE);
                     // 設定說話者名稱以及其WIFI位址
-                    vm.yourName = et_name.getText().toString();
+                    vm.yourName = talkerNameTxt.getText().toString();
                     // 取得說話者的名稱及WIFI位址
                     // 畫面顯示誰正在說話
                     List<Talk> temp = vm.talkHistory.getValue();
