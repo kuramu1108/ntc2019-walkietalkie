@@ -8,6 +8,9 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -33,6 +36,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
     private MyViewModel vm;
+    private TalkAdapter talkAdapter;
 
     private static final String LOG_TAG = "AudioRecordTest";
     public static final int RC_RECORD_AUDIO = 1000;
@@ -43,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton recordBtn;
     private Switch serverConnectionSwitch;
     private EditText et_name;
-    private TextView testview_whosecall;
     private ProgressBar progressBar;
+    private RecyclerView talkHistory;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -53,13 +57,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         vm = ViewModelProviders.of(this).get(MyViewModel.class);
+        talkAdapter = new TalkAdapter(this);
 
         vm.sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
         vm.talkHistory.setValue(new ArrayList<Talk>());
 
         viewBinding();
 
-        testview_whosecall.setMovementMethod(new ScrollingMovementMethod());
+        talkHistory.setLayoutManager(new LinearLayoutManager(this));
+        talkHistory.setHasFixedSize(true);
+        talkHistory.setItemAnimator(new DefaultItemAnimator());
+        talkHistory.setAdapter(talkAdapter);
+
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -108,10 +117,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Observers
+
         vm.talkHistory.observe(this, new Observer<List<Talk>>() {
             @Override
             public void onChanged(@Nullable List<Talk> talks) {
-                testview_whosecall.append(Html.fromHtml(vm.getLastTalkString()));
+                talkAdapter.setData(talks);
+                talkHistory.scrollToPosition(talks.size() - 1);
             }
         });
 
@@ -121,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
                 serverConnectionSwitch.setChecked(aBoolean);
             }
         });
+
+
 
         serverConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -204,8 +218,8 @@ public class MainActivity extends AppCompatActivity {
         serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
         et_name = (EditText) findViewById(R.id.editText);
-        testview_whosecall = (TextView) findViewById(R.id.textView_whosecall);
         progressBar = findViewById(R.id.progressBar);
+        talkHistory = findViewById(R.id.talk_view);
     }
 }
 

@@ -11,17 +11,17 @@ public class MyViewModel extends ViewModel {
     public String talkerName = "";
     public Boolean clientRunning = false;
 
+    public MutableLiveData<Integer> connectionTrial = new MutableLiveData<>();
+
     public MutableLiveData<Boolean> serverConnection = new MutableLiveData<>();
 
     public MutableLiveData<List<Talk>> talkHistory = new MutableLiveData<>();
 
-    public String getLastTalkString() {
-        if (talkHistory.getValue() != null) {
-            int size = talkHistory.getValue().size();
-            if (size > 0) return talkHistory.getValue().get(size-1).getHTMLString();
-            else return "<text></text>";
-        }
-        else return "<text></text>";
+    public void updateConnectionTrial() {
+        if (connectionTrial.getValue() != null) {
+            int temp = connectionTrial.getValue();
+            connectionTrial.postValue(temp + 1);
+        } else connectionTrial.postValue(0);
     }
 
     public Boolean getServerConnection() {

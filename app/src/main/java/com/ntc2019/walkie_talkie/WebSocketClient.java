@@ -167,12 +167,16 @@ public final class WebSocketClient extends WebSocketListener {
         Log.d(LOG_TAG, "onClosing: " + reason);
 //        webSocket.close(1000, null);
         vm.serverConnection.postValue(false);
+//        vm.updateConnectionTrial();
+        run();
     }
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(LOG_TAG, "onFailure: ", t);
         vm.serverConnection.postValue(false);
+//        vm.updateConnectionTrial();
+//        run();
         t.printStackTrace();
     }
 
