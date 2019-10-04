@@ -37,7 +37,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="64dp"
         android:layout_marginBottom="16dp"
-        android:clickable="false"
         android:text="伺服器連接狀態" />
 
 <!--    <TextView-->

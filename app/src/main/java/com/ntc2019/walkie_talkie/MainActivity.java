@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable Boolean aBoolean) {
                 serverConnectionSwitch.setChecked(aBoolean);
+                if (!aBoolean) Toast.makeText(getApplicationContext(), "伺服器無回應請檢察網路連接", Toast.LENGTH_LONG).show();
             }
         });
 
