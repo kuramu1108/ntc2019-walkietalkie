@@ -81,7 +81,6 @@ public final class WebSocketClient extends WebSocketListener {
             mPlayer.release();
             mPlayer = null;
         }
-        vm.clientRunning = false;
     }
 
     @Override
@@ -167,12 +166,18 @@ public final class WebSocketClient extends WebSocketListener {
         Log.d(LOG_TAG, "onClosing: " + reason);
 //        webSocket.close(1000, null);
         vm.serverConnection.postValue(false);
+        vm.clientRunning = false;
+//        vm.updateConnectionTrial();
+        run();
     }
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(LOG_TAG, "onFailure: ", t);
         vm.serverConnection.postValue(false);
+        vm.clientRunning = false;
+//        vm.updateConnectionTrial();
+//        run();
         t.printStackTrace();
     }
 
