@@ -53,6 +53,8 @@ public final class WebSocketClient extends WebSocketListener {
     WebSocket mSocket;
     private MediaPlayer mPlayer;
 
+    // ref send while recording
+    // https://github.com/gms298/Android-Walkie-Talkie/blob/master/app/src/main/java/com/example/nam_o/walkietalkie/MainConversation.java
 
     public WebSocketClient(Context c, MyViewModel viewModel) {
         mContext = c;
