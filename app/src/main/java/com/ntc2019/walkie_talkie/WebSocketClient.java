@@ -139,7 +139,6 @@ public final class WebSocketClient extends WebSocketListener {
             temp.add(new Talk(vm.talkerName, true));
             vm.talkHistory.postValue(temp);
         } else if (text.startsWith(MESSAGE_PREFIX)) {
-            Log.v("MMMM", "ismeeage");
             String message = text.substring(MESSAGE_PREFIX.length());
             List<Talk> temp = vm.talkHistory.getValue();
             temp.add(new Talk("", message));
@@ -172,8 +171,8 @@ public final class WebSocketClient extends WebSocketListener {
     public void onClosing(WebSocket webSocket, int code, String reason) {
         Log.d(LOG_TAG, "onClosing: " + reason);
 //        webSocket.close(1000, null);
-        vm.serverConnection.postValue(false);
         vm.clientRunning = false;
+        vm.serverConnection.postValue(false);
 //        vm.updateConnectionTrial();
         run();
     }
@@ -181,8 +180,9 @@ public final class WebSocketClient extends WebSocketListener {
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(LOG_TAG, "onFailure: ", t);
-        vm.serverConnection.postValue(false);
         vm.clientRunning = false;
+        vm.serverConnection.postValue(true);
+        vm.serverConnection.postValue(false);
 //        vm.updateConnectionTrial();
 //        run();
         t.printStackTrace();
