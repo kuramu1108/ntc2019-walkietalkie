@@ -45,6 +45,7 @@ public final class WebSocketClient extends WebSocketListener {
     public static final String START = "start";
     public static final String END = "end";
     public static final String TALKER_PREFIX = "talking:";
+    public static final String MESSAGE_PREFIX = "message:";
 
     private final Context mContext;
     private final MyViewModel vm;
@@ -137,6 +138,12 @@ public final class WebSocketClient extends WebSocketListener {
             List<Talk> temp = vm.talkHistory.getValue();
             temp.add(new Talk(vm.talkerName, true));
             vm.talkHistory.postValue(temp);
+        } else if (text.startsWith(MESSAGE_PREFIX)) {
+            Log.v("MMMM", "ismeeage");
+            String message = text.substring(MESSAGE_PREFIX.length());
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk("", message));
+            vm.talkHistory.postValue(temp);
         } else if (text.equals(END)) {
             List<Talk> temp = vm.talkHistory.getValue();
             temp.add(new Talk(vm.talkerName, false));
@@ -224,5 +231,9 @@ public final class WebSocketClient extends WebSocketListener {
         Log.d(LOG_TAG, "onClosing: duration in millis: " + mPlayer.getDuration());
 
         mPlayer.start();
+    }
+
+    public void sendMessage(String s) {
+        mSocket.send(MESSAGE_PREFIX + s);
     }
 }
