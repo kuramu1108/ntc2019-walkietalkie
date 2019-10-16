@@ -26,7 +26,6 @@ public final class WebSocketClient2 extends WebSocketListener {
     private final Context mContext;
     private final MyViewModel vm;
     private WebSocket mSocket;
-    private MediaPlayer mPlayer;
 
     private Thread recordingThread = null;
     private AudioRecord recorder = null;
@@ -64,11 +63,6 @@ public final class WebSocketClient2 extends WebSocketListener {
 
     public void close() {
         mSocket.close(1000, null);
-        if (mPlayer != null) {
-            mPlayer.stop();
-            mPlayer.release();
-            mPlayer = null;
-        }
     }
 
     @Override
@@ -117,7 +111,7 @@ public final class WebSocketClient2 extends WebSocketListener {
         Log.d(LOG_TAG, "onClosing: " + reason);
         vm.serverConnection.postValue(false);
         vm.clientRunning = false;
-        run();
+//        run();
     }
 
     @Override
