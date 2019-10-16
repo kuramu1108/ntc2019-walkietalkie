@@ -38,8 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "AudioRecordTest";
     public static final int RC_RECORD_AUDIO = 1000;
 
-    private MediaRecorder mRecorder;
-    private WebSocketClient client;
+    private WebSocketClient2 client;
 
     private ImageButton recordBtn;
     private ImageButton deleteTalkBtn;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        client = new WebSocketClient(this, vm);
+        client = new WebSocketClient2(this, vm);
         client.run();
     }
 
@@ -112,18 +111,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        if (mRecorder != null) {
-            mRecorder.release();
-            mRecorder = null;
-        }
     }
 
     @Override
     public void onDestroy() {
-        if (mRecorder != null) {
-            mRecorder.release();
-            mRecorder = null;
-        }
         client.close();
         super.onDestroy();
     }
@@ -140,30 +131,14 @@ public class MainActivity extends AppCompatActivity {
     private void startRecording() {
         String[] perms = {Manifest.permission.RECORD_AUDIO};
         if (EasyPermissions.hasPermissions(this, perms)) {
-
-            mRecorder = new MediaRecorder();
-            mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mRecorder.setOutputFile(vm.sRecordedFileName);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-            try {
-                mRecorder.prepare();
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "prepare() failed");
-            }
-
-            mRecorder.start();
+            client.startRecording();
         } else {
             EasyPermissions.requestPermissions(this, "Hi", RC_RECORD_AUDIO, perms);
         }
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.reset();
-        mRecorder.release();
-        mRecorder = null;
+        client.stopRecording();
     }
 
     //設定按鈕顏色
@@ -175,11 +150,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //傳送音檔
-    public void send() {
-        client.sendAudio();
-    }
-
     public void viewBinding() {
         serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
@@ -189,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         deleteTalkBtn = findViewById(R.id.imgBtn_delete);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void buttonBinding() {
         deleteTalkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
                     // change button color
                     setRecordIcon(false);
                     stopRecording();
-                    send();
                     progressBar.setVisibility(View.INVISIBLE);
                 }
 
