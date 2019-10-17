@@ -72,7 +72,7 @@ public class TalkAdapter extends RecyclerView.Adapter<TalkAdapter.TalkViewHolder
         void bind(final Talk talk) {
             Log.v("MMMMM", talk.getIsMessage().toString());
             if (talk.getIsMessage()) {
-                String s = talk.getSpeakerName() + ":  " + talk.getMessage();
+                String s = talk.getMessage();
                 talkerName.setText(s);
             } else {
                 talkerName.setText(talk.getSpeakerName());
