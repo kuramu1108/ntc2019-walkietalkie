@@ -237,5 +237,8 @@ public final class WebSocketClient extends WebSocketListener {
 
     public void sendMessage(String s) {
         mSocket.send(MESSAGE_PREFIX + s);
+        List<Talk> temp = vm.talkHistory.getValue();
+        temp.add(new Talk(vm.yourName, s));
+        vm.talkHistory.postValue(temp);
     }
 }

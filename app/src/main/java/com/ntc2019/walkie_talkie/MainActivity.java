@@ -211,7 +211,9 @@ public class MainActivity extends AppCompatActivity {
                 if (message.equals("")) {
                     Toast.makeText(getApplicationContext(), "訊息欄為空白", Toast.LENGTH_SHORT).show();
                 } else {
+                    if (vm.yourName.equals("")) vm.yourName = talkerNameTxt.getText().toString();
                     client.sendMessage(messageTxt.getText().toString());
+                    messageTxt.setText("");
                     hideKeyBoard();
                 }
             }
