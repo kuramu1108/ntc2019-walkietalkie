@@ -2,6 +2,7 @@ package com.ntc2019.walkie_talkie;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.media.MediaRecorder;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -42,8 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton recordBtn;
     private ImageButton deleteTalkBtn;
+    private ImageButton messageSendBtn;
     private Switch serverConnectionSwitch;
     private EditText talkerNameTxt;
+    private EditText messageTxt;
     private ProgressBar progressBar;
     private RecyclerView talkHistory;
 
@@ -157,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         talkHistory = findViewById(R.id.talk_view);
         deleteTalkBtn = findViewById(R.id.imgBtn_delete);
+        messageSendBtn = findViewById(R.id.imgBtn_send);
+        messageTxt = findViewById(R.id.txt_message_box);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -166,6 +172,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 vm.talkHistory.setValue(new ArrayList<Talk>());
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            }
+        });
+
+        messageSendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = messageTxt.getText().toString();
+                if (message.equals("")) {
+                    Toast.makeText(getApplicationContext(), "訊息欄為空白", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (vm.yourName.equals("")) vm.yourName = talkerNameTxt.getText().toString();
+                    client.sendMessage(messageTxt.getText().toString());
+                    messageTxt.setText("");
+                    hideKeyBoard();
+                }
             }
         });
 
@@ -220,6 +241,17 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public void hideKeyBoard() {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = this.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
 
