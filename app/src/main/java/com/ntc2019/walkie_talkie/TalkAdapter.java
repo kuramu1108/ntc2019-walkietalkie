@@ -2,6 +2,7 @@ package com.ntc2019.walkie_talkie;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ public class TalkAdapter extends RecyclerView.Adapter<TalkAdapter.TalkViewHolder
     public TalkViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = null;
         switch (viewType) {
+            case 0: itemView = layoutInflater.inflate(R.layout.layout_talk_message, parent, false);
+                break;
             case 1: itemView = layoutInflater.inflate(R.layout.layout_talk_item_start, parent, false);
                 break;
             case 2: itemView = layoutInflater.inflate(R.layout.layout_talk_item_stop, parent, false);
@@ -47,7 +50,9 @@ public class TalkAdapter extends RecyclerView.Adapter<TalkAdapter.TalkViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return data.get(position).getStart()? 1 : 2;
+        Talk talk = data.get(position);
+        if (talk.getIsMessage()) return 0;
+        else return talk.getStart()? 1 : 2;
     }
 
     public void setData(List<Talk> talks) {
@@ -65,7 +70,13 @@ public class TalkAdapter extends RecyclerView.Adapter<TalkAdapter.TalkViewHolder
         }
 
         void bind(final Talk talk) {
-            talkerName.setText(talk.getSpeakerName());
+            Log.v("MMMMM", talk.getIsMessage().toString());
+            if (talk.getIsMessage()) {
+                String s = talk.getMessage();
+                talkerName.setText(s);
+            } else {
+                talkerName.setText(talk.getSpeakerName());
+            }
         }
     }
 }

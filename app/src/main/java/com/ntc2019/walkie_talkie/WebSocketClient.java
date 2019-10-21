@@ -45,6 +45,7 @@ public final class WebSocketClient extends WebSocketListener {
     public static final String START = "start";
     public static final String END = "end";
     public static final String TALKER_PREFIX = "talking:";
+    public static final String MESSAGE_PREFIX = "message:";
 
     private final Context mContext;
     private final MyViewModel vm;
@@ -52,6 +53,8 @@ public final class WebSocketClient extends WebSocketListener {
     WebSocket mSocket;
     private MediaPlayer mPlayer;
 
+    // ref send while recording
+    // https://github.com/gms298/Android-Walkie-Talkie/blob/master/app/src/main/java/com/example/nam_o/walkietalkie/MainConversation.java
 
     public WebSocketClient(Context c, MyViewModel viewModel) {
         mContext = c;
@@ -137,6 +140,11 @@ public final class WebSocketClient extends WebSocketListener {
             List<Talk> temp = vm.talkHistory.getValue();
             temp.add(new Talk(vm.talkerName, true));
             vm.talkHistory.postValue(temp);
+        } else if (text.startsWith(MESSAGE_PREFIX)) {
+            String message = text.substring(MESSAGE_PREFIX.length());
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk("", message));
+            vm.talkHistory.postValue(temp);
         } else if (text.equals(END)) {
             List<Talk> temp = vm.talkHistory.getValue();
             temp.add(new Talk(vm.talkerName, false));
@@ -165,8 +173,8 @@ public final class WebSocketClient extends WebSocketListener {
     public void onClosing(WebSocket webSocket, int code, String reason) {
         Log.d(LOG_TAG, "onClosing: " + reason);
 //        webSocket.close(1000, null);
-        vm.serverConnection.postValue(false);
         vm.clientRunning = false;
+        vm.serverConnection.postValue(false);
 //        vm.updateConnectionTrial();
         run();
     }
@@ -174,8 +182,9 @@ public final class WebSocketClient extends WebSocketListener {
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(LOG_TAG, "onFailure: ", t);
-        vm.serverConnection.postValue(false);
         vm.clientRunning = false;
+        vm.serverConnection.postValue(true);
+        vm.serverConnection.postValue(false);
 //        vm.updateConnectionTrial();
 //        run();
         t.printStackTrace();
@@ -224,5 +233,12 @@ public final class WebSocketClient extends WebSocketListener {
         Log.d(LOG_TAG, "onClosing: duration in millis: " + mPlayer.getDuration());
 
         mPlayer.start();
+    }
+
+    public void sendMessage(String s) {
+        mSocket.send(MESSAGE_PREFIX + vm.yourName + ": " + s);
+        List<Talk> temp = vm.talkHistory.getValue();
+        temp.add(new Talk(vm.yourName, s));
+        vm.talkHistory.postValue(temp);
     }
 }

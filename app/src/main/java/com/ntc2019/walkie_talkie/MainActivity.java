@@ -2,6 +2,7 @@ package com.ntc2019.walkie_talkie;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.media.MediaRecorder;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -38,13 +40,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "AudioRecordTest";
     public static final int RC_RECORD_AUDIO = 1000;
 
-    private MediaRecorder mRecorder;
-    private WebSocketClient client;
+    private WebSocketClient2 client;
 
     private ImageButton recordBtn;
     private ImageButton deleteTalkBtn;
+    private ImageButton messageSendBtn;
     private Switch serverConnectionSwitch;
     private EditText talkerNameTxt;
+    private EditText messageTxt;
     private ProgressBar progressBar;
     private RecyclerView talkHistory;
 
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        client = new WebSocketClient(this, vm);
+        client = new WebSocketClient2(this, vm);
         client.run();
     }
 
@@ -112,18 +115,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        if (mRecorder != null) {
-            mRecorder.release();
-            mRecorder = null;
-        }
     }
 
     @Override
     public void onDestroy() {
-        if (mRecorder != null) {
-            mRecorder.release();
-            mRecorder = null;
-        }
         client.close();
         super.onDestroy();
     }
@@ -140,30 +135,14 @@ public class MainActivity extends AppCompatActivity {
     private void startRecording() {
         String[] perms = {Manifest.permission.RECORD_AUDIO};
         if (EasyPermissions.hasPermissions(this, perms)) {
-
-            mRecorder = new MediaRecorder();
-            mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mRecorder.setOutputFile(vm.sRecordedFileName);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-            try {
-                mRecorder.prepare();
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "prepare() failed");
-            }
-
-            mRecorder.start();
+            client.startRecording();
         } else {
             EasyPermissions.requestPermissions(this, "Hi", RC_RECORD_AUDIO, perms);
         }
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.reset();
-        mRecorder.release();
-        mRecorder = null;
+        client.stopRecording();
     }
 
     //設定按鈕顏色
@@ -175,11 +154,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //傳送音檔
-    public void send() {
-        client.sendAudio();
-    }
-
     public void viewBinding() {
         serverConnectionSwitch = findViewById(R.id.switch_server_connection);
         recordBtn = findViewById(R.id.imageButton);
@@ -187,14 +161,35 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         talkHistory = findViewById(R.id.talk_view);
         deleteTalkBtn = findViewById(R.id.imgBtn_delete);
+        messageSendBtn = findViewById(R.id.imgBtn_send);
+        messageTxt = findViewById(R.id.txt_message_box);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void buttonBinding() {
         deleteTalkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 vm.talkHistory.setValue(new ArrayList<Talk>());
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            }
+        });
+
+        messageSendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = messageTxt.getText().toString();
+                if (talkerNameTxt.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "請輸入發話者名字", Toast.LENGTH_SHORT).show();
+
+                } else if (message.equals("")) {
+                    Toast.makeText(getApplicationContext(), "訊息欄為空白", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (vm.yourName.equals("")) vm.yourName = talkerNameTxt.getText().toString();
+                    client.sendMessage(messageTxt.getText().toString());
+                    messageTxt.setText("");
+                    hideKeyBoard();
+                }
             }
         });
 
@@ -238,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
                     // change button color
                     setRecordIcon(false);
                     stopRecording();
-                    send();
                     progressBar.setVisibility(View.INVISIBLE);
                 }
 
@@ -250,6 +244,17 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public void hideKeyBoard() {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = this.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
 
