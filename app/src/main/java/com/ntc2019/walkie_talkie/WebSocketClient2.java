@@ -22,6 +22,8 @@ public final class WebSocketClient2 extends WebSocketListener {
     private static final String LOG_TAG = "WebSocketClient";
     private static final String START = "start";
     private static final String END = "end";
+    public static final String TALKER_PREFIX = "talking:";
+    public static final String MESSAGE_PREFIX = "message:";
 
     private final Context mContext;
     private final MyViewModel vm;
@@ -74,9 +76,11 @@ public final class WebSocketClient2 extends WebSocketListener {
 
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        if (text.equals(START)) {
+        if (text.startsWith(START)) {
             playBuffer = new byte[minSize];
             track.play();
+            vm.talkerName = text.substring(13);
+
             List<Talk> temp = vm.talkHistory.getValue();
             temp.add(new Talk(vm.talkerName, true));
             vm.talkHistory.postValue(temp);
@@ -88,7 +92,12 @@ public final class WebSocketClient2 extends WebSocketListener {
                 isRecording = true;
                 track.stop();
             }
-        } else {
+        } else if (text.startsWith(MESSAGE_PREFIX)) {
+            String message = text.substring(MESSAGE_PREFIX.length());
+            List<Talk> temp = vm.talkHistory.getValue();
+            temp.add(new Talk("", message));
+            vm.talkHistory.postValue(temp);
+        }else {
             // receiving hex strings
             try {
                 ByteString d = ByteString.decodeHex(text);
@@ -136,7 +145,7 @@ public final class WebSocketClient2 extends WebSocketListener {
     public void startRecording() {
         Log.d("AUDIO", "Assigning recorder");
         buffer = new byte[bufferSize];
-        mSocket.send(START);
+        mSocket.send(START + TALKER_PREFIX + vm.yourName);
         recorder.startRecording();
         isRecording = true;
 
@@ -170,5 +179,12 @@ public final class WebSocketClient2 extends WebSocketListener {
             isRecording = false;
             recorder.stop();
         }
+    }
+
+    public void sendMessage(String s) {
+        mSocket.send(MESSAGE_PREFIX + vm.yourName + ": " + s);
+        List<Talk> temp = vm.talkHistory.getValue();
+        temp.add(new Talk(vm.yourName, vm.yourName + ": " + s));
+        vm.talkHistory.postValue(temp);
     }
 }

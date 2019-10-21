@@ -179,7 +179,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String message = messageTxt.getText().toString();
-                if (message.equals("")) {
+                if (talkerNameTxt.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "請輸入發話者名字", Toast.LENGTH_SHORT).show();
+
+                } else if (message.equals("")) {
                     Toast.makeText(getApplicationContext(), "訊息欄為空白", Toast.LENGTH_SHORT).show();
                 } else {
                     if (vm.yourName.equals("")) vm.yourName = talkerNameTxt.getText().toString();
