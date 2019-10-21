@@ -26,7 +26,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:text="has stop talking"
+            android:text="has stopped talking"
             android:textColor="@color/colorAccent" />
     </RelativeLayout>
 
