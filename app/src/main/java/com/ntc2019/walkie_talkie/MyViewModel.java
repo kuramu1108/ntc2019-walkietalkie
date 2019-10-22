@@ -6,10 +6,9 @@ import android.arch.lifecycle.ViewModel;
 import java.util.List;
 
 public class MyViewModel extends ViewModel {
-    public String sRecordedFileName = "";
     public String yourName = "";
     public String talkerName = "";
-    public Boolean clientRunning = false;
+    public MutableLiveData<Boolean> clientStarting = new MutableLiveData<>();
 
     public MutableLiveData<Integer> connectionTrial = new MutableLiveData<>();
 
@@ -30,5 +29,10 @@ public class MyViewModel extends ViewModel {
             serverConnection.setValue(false);
             return false;
         }
+    }
+
+    public Boolean getClientStarting() {
+        if (clientStarting.getValue() != null) return clientStarting.getValue();
+        else return false;
     }
 }

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
@@ -25,7 +25,6 @@ import android.widget.Switch;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "AudioRecordTest";
     public static final int RC_RECORD_AUDIO = 1000;
 
-    private WebSocketClient2 client;
+    private WebSocketClient client;
 
     private ImageButton recordBtn;
     private ImageButton deleteTalkBtn;
@@ -49,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText talkerNameTxt;
     private EditText messageTxt;
     private ProgressBar progressBar;
+    private FrameLayout progressOverlay;
     private RecyclerView talkHistory;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         vm = ViewModelProviders.of(this).get(MyViewModel.class);
         talkAdapter = new TalkAdapter(this);
 
-        vm.sRecordedFileName = getCacheDir().getAbsolutePath() + "/audiorecordtest.3gp";
         vm.talkHistory.setValue(new ArrayList<Talk>());
 
         viewBinding();
@@ -93,17 +92,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        vm.clientStarting.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean connecting) {
+                if (connecting) progressOverlay.setVisibility(View.VISIBLE);
+                else progressOverlay.setVisibility(View.GONE);
+            }
+        });
 
 
         serverConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked && !vm.clientRunning) client.run();
-                else if (!isChecked && vm.clientRunning) client.close();
+                if (isChecked && !vm.getClientStarting()) client.run();
+//                else if (!isChecked && vm.clientStarting) client.close();
             }
         });
 
-        client = new WebSocketClient2(this, vm);
+        client = new WebSocketClient(this, vm);
         client.run();
     }
 
@@ -163,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         deleteTalkBtn = findViewById(R.id.imgBtn_delete);
         messageSendBtn = findViewById(R.id.imgBtn_send);
         messageTxt = findViewById(R.id.txt_message_box);
+        progressOverlay = findViewById(R.id.progress_overlay);
     }
 
     @SuppressLint("ClickableViewAccessibility")

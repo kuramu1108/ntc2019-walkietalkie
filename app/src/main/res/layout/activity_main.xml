@@ -138,4 +138,20 @@
         android:background="#00FFFFFF"
         app:srcCompat="@drawable/ic_send_black_24dp" />
 
+    <FrameLayout
+        android:id="@+id/progress_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.6"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:background="@android:color/black">
+        <ProgressBar
+            android:id="@+id/progress_connecting"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
 </RelativeLayout>
