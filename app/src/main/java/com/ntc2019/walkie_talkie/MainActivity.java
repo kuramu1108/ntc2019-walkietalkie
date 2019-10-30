@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout progressOverlay;
     private RecyclerView talkHistory;
 
+    private Boolean permissionGranted = false;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onCreate(Bundle icicle) {
@@ -132,8 +134,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        permissionGranted = true;
+//        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        client.audioCreate();
     }
 
 
@@ -211,6 +214,9 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
 
+                // check for permission
+
+
                 if(event.getAction() == MotionEvent.ACTION_DOWN && vm.getServerConnection())
                 {
                     // 給予觸覺回饋
@@ -239,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // change button color
                     setRecordIcon(false);
-                    stopRecording();
+                    if (permissionGranted) stopRecording();
                     progressBar.setVisibility(View.INVISIBLE);
                 }
 

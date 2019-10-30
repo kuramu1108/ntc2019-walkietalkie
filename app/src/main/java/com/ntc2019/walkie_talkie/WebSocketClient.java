@@ -148,6 +148,7 @@ public final class WebSocketClient extends WebSocketListener {
         Log.d("AUDIO", "Assigning recorder");
         buffer = new byte[bufferSize];
         mSocket.send(START + TALKER_PREFIX + vm.yourName);
+
         recorder.startRecording();
         isRecording = true;
 
