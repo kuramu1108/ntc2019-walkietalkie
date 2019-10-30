@@ -10,12 +10,12 @@
         android:id="@+id/txt_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ICEF對講機通訊"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
+        android:text="蛙鳴"
         android:textColor="@android:color/black"
-        android:textSize="32dp"/>
+        android:textSize="32dp" />
 
     <EditText
         android:id="@+id/txt_message_box"

@@ -53,7 +53,7 @@ public final class WebSocketClient extends WebSocketListener {
                 .build();
 
         Request request = new Request.Builder()
-                .url("ws://ntc2019-walkietalkie.herokuapp.com/chat")
+                .url("wss://ntc2019-walkietalkie.herokuapp.com/chat")
                 .build();
         client.newWebSocket(request, this);
 
