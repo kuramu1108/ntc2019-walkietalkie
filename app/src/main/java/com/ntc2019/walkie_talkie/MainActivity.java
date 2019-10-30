@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         String[] perms = {Manifest.permission.RECORD_AUDIO};
         if (EasyPermissions.hasPermissions(this, perms)) {
             client.startRecording();
+            permissionGranted = true;
         } else {
             EasyPermissions.requestPermissions(this, "Hi", RC_RECORD_AUDIO, perms);
         }
